@@ -1,9 +1,7 @@
 {
-  "name": "kickinghorse-api",
-  "version": "1.0.0",
+  "name": "kickinghorse-weather-api",
   "type": "module",
-  "description": "Kicking Horse bowl status API",
-  "main": "server.js",
+  "version": "1.0.0",
   "dependencies": {
     "express": "^4.18.2",
     "node-fetch": "^3.3.2",
