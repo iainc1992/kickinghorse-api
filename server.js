@@ -1,40 +1,28 @@
 import express from "express";
-import { scrapeBowls, addDurationOpen } from "./scraper.js";
+import { scrapeWeather } from "./scraper.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-let cachedData = {};
-let lastUpdated = null;
+let cachedData = [];
 
 async function updateData() {
   try {
-    const raw = await scrapeBowls();
-    cachedData = addDurationOpen(raw);
-    lastUpdated = new Date().toISOString();
-    console.log(`Updated at ${lastUpdated}`);
+    cachedData = await scrapeWeather();
+    console.log("Weather data updated");
   } catch (err) {
-    console.error("Update failed:", err.message);
+    console.error("Scrape failed", err);
   }
 }
 
-// Run once at startup
+// Initial load + hourly refresh
 updateData();
+setInterval(updateData, 60 * 60 * 1000);
 
-// Update every 10 minutes
-setInterval(updateData, 10 * 60 * 1000);
-
-app.get("/", (req, res) => {
-  res.send("Kicking Horse API is running");
+app.get("/api/weather", (req, res) => {
+  res.json(cachedData);
 });
 
-app.get("/api/bowls", (req, res) => {
-  res.json({
-    lastUpdated,
-    bowls: cachedData
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`API running at http://localhost:${PORT}`)
+);
